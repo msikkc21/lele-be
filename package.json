@@ -9,6 +9,7 @@
     "db:migrate": "npx prisma migrate dev",
     "prisma:generate": "npx prisma generate",
     "prisma:studio": "npx prisma studio",
+    "postinstall": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
