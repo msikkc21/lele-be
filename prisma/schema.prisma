@@ -1,0 +1,25 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// IoT sensor readings for monitoring pond water parameters
+model WaterReading {
+  id        Int      @id @default(autoincrement())
+  suhu      Float    // Temperature in °C
+  tds       Float    // Total Dissolved Solids (ppm)
+  ph        Float    // pH level (0.0 - 14.0)
+  deviceId  String   // Identifier of the IoT device
+  createdAt DateTime @default(now())
+
+  @@index([deviceId])
+  @@index([createdAt])
+}
