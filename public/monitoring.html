@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitoring Air Kolam IoT</title>
+  <style>
+    :root {
+      color-scheme: light;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f4f6f8;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e1e4e6;
+      padding-bottom: 10px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      color: #1a202c;
+    }
+    .timer {
+      font-size: 14px;
+      background-color: #e2e8f0;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      color: #4a5568;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .card {
+      background-color: #ffffff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      border: 1px solid #e2e8f0;
+      text-align: center;
+    }
+    .card h2 {
+      margin: 0 0 10px 0;
+      font-size: 16px;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .value {
+      font-size: 36px;
+      font-weight: bold;
+      margin: 10px 0;
+      color: #2d3748;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    .badge-normal { background-color: #c6f6d5; color: #22543d; }
+    .badge-warning { background-color: #feebc8; color: #744210; }
+    .badge-danger { background-color: #fed7d7; color: #742a2a; }
+    .badge-unknown { background-color: #edf2f7; color: #4a5568; }
+    
+    .history-section {
+      background-color: #ffffff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      border: 1px solid #e2e8f0;
+    }
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .history-header h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #2d3748;
+    }
+    .filter-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .filter-wrapper label {
+      font-size: 14px;
+      color: #4a5568;
+    }
+    
+    /* Custom Dropdown Styling */
+    .custom-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    .dropdown-trigger {
+      padding: 6px 16px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e0;
+      font-size: 14px;
+      color: #2d3748;
+      background-color: #ffffff;
+      cursor: pointer;
+      min-width: 70px;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 500;
+    }
+    .dropdown-trigger::after {
+      content: "▼";
+      font-size: 8px;
+      margin-left: 8px;
+      color: #718096;
+    }
+    .dropdown-trigger:focus {
+      outline: none;
+      border-color: #a0aec0;
+    }
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      z-index: 100;
+      display: none;
+      min-width: 80px;
+      padding: 4px 0;
+      margin: 4px 0 0 0;
+      list-style: none;
+      background-color: #ffffff;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    .dropdown-menu.show {
+      display: block;
+    }
+    .dropdown-menu li {
+      padding: 8px 16px;
+      font-size: 14px;
+      color: #2d3748;
+      cursor: pointer;
+      text-align: center;
+      transition: background-color 0.2s;
+    }
+    .dropdown-menu li:hover {
+      background-color: #f7fafc;
+    }
+    .dropdown-menu li.active {
+      background-color: #ebf8ff;
+      color: #2b6cb0;
+      font-weight: bold;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 14px;
+    }
+    th {
+      background-color: #f7fafc;
+      color: #4a5568;
+      font-weight: 600;
+    }
+    tr:hover {
+      background-color: #f8fafc;
+    }
+    .no-data {
+      text-align: center;
+      color: #718096;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Monitoring Air Kolam IoT</h1>
+      <div class="timer" id="timer-text">Memuat...</div>
+    </header>
+
+    <div class="grid">
+      <!-- Card Suhu -->
+      <div class="card">
+        <h2>Suhu</h2>
+        <div class="value" id="suhu-val">-</div>
+        <div class="badge badge-unknown" id="suhu-status">Memuat...</div>
+      </div>
+      <!-- Card TDS -->
+      <div class="card">
+        <h2>TDS (Total Dissolved Solids)</h2>
+        <div class="value" id="tds-val">-</div>
+        <div class="badge badge-unknown" id="tds-status">Memuat...</div>
+      </div>
+      <!-- Card pH -->
+      <div class="card">
+        <h2>Kadar pH</h2>
+        <div class="value" id="ph-val">-</div>
+        <div class="badge badge-unknown" id="ph-status">Memuat...</div>
+      </div>
+    </div>
+
+    <div class="history-section">
+      <div class="history-header">
+        <h3>Riwayat Data Sensor</h3>
+        <div class="filter-wrapper">
+          <label>Tampilkan data terakhir:</label>
+          
+          <!-- Custom Dropdown (bypasses native mobile/OS dark mode option bugs) -->
+          <div class="custom-dropdown">
+            <button type="button" id="dropdown-btn" class="dropdown-trigger">10</button>
+            <ul id="dropdown-list" class="dropdown-menu">
+              <li data-value="5">5</li>
+              <li data-value="10" class="active">10</li>
+              <li data-value="20">20</li>
+              <li data-value="50">50</li>
+              <li data-value="100">100</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Waktu</th>
+              <th>Device ID</th>
+              <th>Suhu (°C)</th>
+              <th>TDS (ppm)</th>
+              <th>pH</th>
+            </tr>
+          </thead>
+          <tbody id="history-body">
+            <tr>
+              <td colspan="5" class="no-data">Memuat riwayat data...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let countdown = 5;
+    let currentLimit = 10;
+    const timerText = document.getElementById('timer-text');
+    const dropdownBtn = document.getElementById('dropdown-btn');
+    const dropdownList = document.getElementById('dropdown-list');
+
+    // Toggle custom dropdown
+    dropdownBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdownList.classList.toggle('show');
+    });
+
+    // Close dropdown on click outside
+    document.addEventListener('click', () => {
+      dropdownList.classList.remove('show');
+    });
+
+    // Handle selecting options inside custom dropdown
+    dropdownList.querySelectorAll('li').forEach(item => {
+      item.addEventListener('click', (e) => {
+        const val = parseInt(e.target.getAttribute('data-value'), 10);
+        
+        // Update active status
+        dropdownList.querySelectorAll('li').forEach(li => li.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        // Update trigger text
+        dropdownBtn.textContent = val;
+        
+        // Update limit and reload history immediately
+        currentLimit = val;
+        dropdownList.classList.remove('show');
+        fetchHistoryData();
+      });
+    });
+
+    // Evaluasi parameter air untuk ikan lele
+    function getSuhuStatus(val) {
+      if (val < 25) return { text: 'Dingin', class: 'badge-warning' };
+      if (val > 32) return { text: 'Panas', class: 'badge-danger' };
+      return { text: 'Normal', class: 'badge-normal' };
+    }
+
+    function getTdsStatus(val) {
+      if (val > 1000) return { text: 'Tinggi', class: 'badge-danger' };
+      if (val < 100) return { text: 'Rendah', class: 'badge-warning' };
+      return { text: 'Optimal', class: 'badge-normal' };
+    }
+
+    function getPhStatus(val) {
+      if (val < 6.5) return { text: 'Asam', class: 'badge-danger' };
+      if (val > 8.5) return { text: 'Basa/Alkali', class: 'badge-danger' };
+      if ((val >= 6.5 && val < 7.0) || (val > 8.0 && val <= 8.5)) return { text: 'Cukup', class: 'badge-warning' };
+      return { text: 'Normal', class: 'badge-normal' };
+    }
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + 
+             ' ' + date.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' });
+    }
+
+    async function fetchLatestData() {
+      try {
+        const res = await fetch('/api/readings/latest');
+        if (!res.ok) throw new Error('Data tidak ditemukan');
+        const json = await res.json();
+        
+        if (json.status === 'success' && json.data) {
+          const d = json.data;
+          
+          // Update values
+          document.getElementById('suhu-val').textContent = d.suhu.toFixed(1) + ' °C';
+          document.getElementById('tds-val').textContent = d.tds.toFixed(0) + ' ppm';
+          document.getElementById('ph-val').textContent = d.ph.toFixed(1);
+
+          // Update status badges
+          const suhuStatus = getSuhuStatus(d.suhu);
+          const tdsStatus = getTdsStatus(d.tds);
+          const phStatus = getPhStatus(d.ph);
+
+          const suhuEl = document.getElementById('suhu-status');
+          suhuEl.textContent = suhuStatus.text;
+          suhuEl.className = 'badge ' + suhuStatus.class;
+
+          const tdsEl = document.getElementById('tds-status');
+          tdsEl.textContent = tdsStatus.text;
+          tdsEl.className = 'badge ' + tdsStatus.class;
+
+          const phEl = document.getElementById('ph-status');
+          phEl.textContent = phStatus.text;
+          phEl.className = 'badge ' + phStatus.class;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function fetchHistoryData() {
+      try {
+        const res = await fetch(`/api/readings?limit=${currentLimit}`);
+        if (!res.ok) throw new Error('Gagal mengambil riwayat');
+        const json = await res.json();
+        
+        if (json.status === 'success' && json.data) {
+          const readings = json.data;
+          const tbody = document.getElementById('history-body');
+          
+          if (readings.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="no-data">Belum ada data sensor masuk.</td></tr>`;
+            return;
+          }
+
+          let html = '';
+          readings.forEach(d => {
+            html += `
+              <tr>
+                <td>${formatDate(d.createdAt)}</td>
+                <td>${d.deviceId}</td>
+                <td>${d.suhu.toFixed(1)} °C</td>
+                <td>${d.tds.toFixed(0)} ppm</td>
+                <td>${d.ph.toFixed(1)}</td>
+              </tr>
+            `;
+          });
+          tbody.innerHTML = html;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadData() {
+      await Promise.all([fetchLatestData(), fetchHistoryData()]);
+    }
+
+    // Timer loop
+    setInterval(() => {
+      countdown--;
+      if (countdown < 0) {
+        countdown = 5;
+        timerText.textContent = 'Memperbarui...';
+        loadData();
+      } else {
+        timerText.textContent = `Auto refresh: ${countdown}s`;
+      }
+    }, 1000);
+
+    // Initial load
+    timerText.textContent = 'Auto refresh: 5s';
+    loadData();
+  </script>
+</body>
+</html>
