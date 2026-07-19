@@ -17,6 +17,7 @@ model WaterReading {
   suhu      Float    // Temperature in °C
   tds       Float    // Total Dissolved Solids (ppm)
   ph        Float    // pH level (0.0 - 14.0)
+  raw       Float?   // Raw sensor voltage (V)
   deviceId  String   // Identifier of the IoT device
   createdAt DateTime @default(now())
 

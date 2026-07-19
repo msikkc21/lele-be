@@ -5,7 +5,7 @@ const prisma = require('../prisma/client');
 // POST /api/readings - Receive sensor data from IoT devices
 router.post('/', async (req, res, next) => {
   try {
-    const { suhu, tds, ph, deviceId } = req.body;
+    const { suhu, tds, ph, raw, deviceId } = req.body;
 
     // Validation
     if (suhu === undefined || tds === undefined || ph === undefined || !deviceId) {
@@ -18,6 +18,17 @@ router.post('/', async (req, res, next) => {
     const parsedSuhu = parseFloat(suhu);
     const parsedTds = parseFloat(tds);
     const parsedPh = parseFloat(ph);
+    let parsedRaw = null;
+
+    if (raw !== undefined && raw !== null) {
+      parsedRaw = parseFloat(raw);
+      if (isNaN(parsedRaw)) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Invalid numerical value for raw sensor voltage. raw must be a number.'
+        });
+      }
+    }
 
     if (isNaN(parsedSuhu) || isNaN(parsedTds) || isNaN(parsedPh)) {
       return res.status(400).json({
@@ -39,6 +50,7 @@ router.post('/', async (req, res, next) => {
         suhu: parsedSuhu,
         tds: parsedTds,
         ph: parsedPh,
+        raw: parsedRaw,
         deviceId: String(deviceId).trim()
       }
     });

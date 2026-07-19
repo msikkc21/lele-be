@@ -257,6 +257,7 @@
               <th>Suhu (°C)</th>
               <th>TDS (ppm)</th>
               <th>pH</th>
+              <th>Raw Voltage (V)</th>
             </tr>
           </thead>
           <tbody id="history-body">
@@ -385,6 +386,7 @@
 
           let html = '';
           readings.forEach(d => {
+            const rawVal = d.raw !== null && d.raw !== undefined ? d.raw.toFixed(2) + ' V' : '-';
             html += `
               <tr>
                 <td>${formatDate(d.createdAt)}</td>
@@ -392,6 +394,7 @@
                 <td>${d.suhu.toFixed(1)} °C</td>
                 <td>${d.tds.toFixed(0)} ppm</td>
                 <td>${d.ph.toFixed(1)}</td>
+                <td>${rawVal}</td>
               </tr>
             `;
           });
