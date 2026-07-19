@@ -345,7 +345,7 @@
           // Update values
           document.getElementById('suhu-val').textContent = d.suhu.toFixed(1) + ' °C';
           document.getElementById('tds-val').textContent = d.tds.toFixed(0) + ' ppm';
-          document.getElementById('ph-val').textContent = d.ph.toFixed(1);
+          document.getElementById('ph-val').textContent = d.ph.toFixed(2);
 
           // Update status badges
           const suhuStatus = getSuhuStatus(d.suhu);
@@ -386,14 +386,14 @@
 
           let html = '';
           readings.forEach(d => {
-            const rawVal = d.raw !== null && d.raw !== undefined ? d.raw.toFixed(2) + ' V' : '-';
+            const rawVal = d.raw !== null && d.raw !== undefined ? d.raw.toFixed(3) + ' V' : '-';
             html += `
               <tr>
                 <td>${formatDate(d.createdAt)}</td>
                 <td>${d.deviceId}</td>
                 <td>${d.suhu.toFixed(1)} °C</td>
                 <td>${d.tds.toFixed(0)} ppm</td>
-                <td>${d.ph.toFixed(1)}</td>
+                <td>${d.ph.toFixed(2)}</td>
                 <td>${rawVal}</td>
               </tr>
             `;
